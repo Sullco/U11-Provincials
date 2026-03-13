@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>U11 A/B Female Provincials 2025-26 – Live Standings Tracker</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+  :root {
+    --red-dark:    #8B0018;
+    --red-mid:     #C8102E;
+    --red-light:   #FDDCDC;
+    --gold:        #F0C040;
+    --ice:         #EAF6FF;
+    --ice-mid:     #C8E4F5;
+    --green:       #1A6E35;
+    --green-light: #D4EDDA;
+    --amber:       #7A5200;
+    --amber-light: #FFF3CD;
+    --blue:        #1a3a8b;
+    --blue-light:  #ddeaff;
+    --text:        #1a1a2e;
+    --sub:         #556677;
+    --border:      #C8D8E8;
+    --caps-gold:   #FFF5DD;
+    --caps-border: #E0B030;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Barlow', sans-serif;
+    background: linear-gradient(160deg, #06101f 0%, #0e1c3a 50%, #1a0510 100%);
+    min-height: 100vh;
+    color: var(--text);
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg, var(--red-dark) 0%, #2a0010 50%, #0a1535 100%);
+    padding: 24px 32px 20px;
+    text-align: center;
+    border-bottom: 3px solid var(--gold);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before { content:'🏒'; position:absolute; left:20px; top:50%; transform:translateY(-50%); font-size:48px; opacity:.15; }
+  .hero::after  { content:'🏒'; position:absolute; right:20px; top:50%; transform:translateY(-50%); font-size:48px; opacity:.15; }
+  .hero-eyebrow { font-family:'Bebas Neue'; letter-spacing:4px; font-size:13px; color:var(--gold); margin-bottom:4px; }
+  .hero-title   { font-family:'Bebas Neue'; font-size:clamp(28px,5vw,52px); color:#fff; letter-spacing:3px; line-height:1; margin-bottom:6px; }
+  .hero-sub     { font-size:13px; color:#FFB8B8; letter-spacing:1px; }
+  .hero-badge   { display:inline-block; background:var(--gold); color:#2a0010; font-family:'Bebas Neue'; font-size:13px; letter-spacing:2px; padding:3px 12px; border-radius:20px; margin-top:8px; }
+
+  /* ── LAYOUT ── */
+  .container { max-width:1100px; margin:0 auto; padding:24px 16px 60px; }
+
+  /* ── TABS ── */
+  .tabs { display:flex; gap:6px; margin-bottom:20px; flex-wrap:wrap; }
+  .tab {
+    flex:1; min-width:100px; padding:10px 8px;
+    font-family:'Bebas Neue'; font-size:15px; letter-spacing:2px;
+    background:rgba(255,255,255,.08); color:#AAB8CC;
+    border:1px solid rgba(255,255,255,.12); border-radius:6px;
+    cursor:pointer; transition:all .2s;
+  }
+  .tab.active  { background:var(--red-dark); color:var(--gold); border-color:var(--gold); }
+  .tab:hover:not(.active) { background:rgba(255,255,255,.14); color:#fff; }
+  .panel { display:none; }
+  .panel.active { display:block; }
+
+  /* ── CARDS ── */
+  .card { background:#fff; border-radius:10px; box-shadow:0 4px 24px rgba(0,0,0,.4); overflow:hidden; margin-bottom:20px; }
+  .card-header { background:var(--red-dark); color:#fff; font-family:'Bebas Neue'; letter-spacing:2px; font-size:16px; padding:10px 18px; display:flex; align-items:center; gap:8px; }
+  .card-header .gold { color:var(--gold); }
+
+  /* ── STANDINGS TABLE ── */
+  .standings-table { width:100%; border-collapse:collapse; }
+  .standings-table th { background:#1A2E5A; color:#fff; font-family:'Bebas Neue'; letter-spacing:1.5px; font-size:13px; padding:9px 8px; text-align:center; border-bottom:2px solid var(--gold); }
+  .standings-table th.left { text-align:left; padding-left:14px; }
+  .standings-table td { padding:8px; text-align:center; font-size:13px; border-bottom:1px solid #ddeaff; }
+  .standings-table td.team-name { text-align:left; padding-left:14px; font-weight:700; font-size:13px; }
+  .standings-table tr:nth-child(even) td { background:var(--ice); }
+  .standings-table tr:hover td { background:var(--ice-mid); }
+  .standings-table tr.caps-row td { background:var(--caps-gold) !important; border-left:3px solid var(--caps-border); }
+  .standings-table tr.caps-row:hover td { background:#ffe8a0 !important; }
+
+  .rank-badge { display:inline-block; width:22px; height:22px; border-radius:50%; font-family:'Bebas Neue'; font-size:13px; line-height:22px; text-align:center; margin-right:6px; }
+  .rank-1 { background:var(--gold); color:#2a0010; }
+  .rank-2 { background:var(--ice-mid); color:#1A2E5A; }
+  .rank-other { background:#eee; color:#888; }
+
+  .pts-cell { font-weight:700; font-size:15px; color:var(--red-dark); }
+  .max-pts  { font-size:11px; color:var(--sub); }
+
+  .status-pill { display:inline-block; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; letter-spacing:.5px; }
+  .status-clinched   { background:var(--green-light); color:var(--green); }
+  .status-eliminated { background:var(--red-light);   color:var(--red-dark); }
+  .status-contention { background:var(--amber-light);  color:var(--amber); }
+  .status-a-div { background:var(--green-light); color:var(--green); }
+  .status-b-div { background:var(--blue-light);  color:var(--blue); }
+
+  /* ── SCHEDULE TABLE ── */
+  .schedule-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .schedule-table th { background:#1A2E5A; color:#fff; font-family:'Bebas Neue'; letter-spacing:1.5px; font-size:12px; padding:8px; text-align:center; }
+  .schedule-table td { padding:7px 10px; border-bottom:1px solid #ddeaff; }
+  .schedule-table tr:nth-child(even) td { background:var(--ice); }
+  .schedule-table tr.day-header td { background:var(--red-dark); color:var(--gold); font-family:'Bebas Neue'; letter-spacing:2px; font-size:13px; }
+  .schedule-table tr.played-row td { background:#f0fff4 !important; }
+  .schedule-table tr.caps-game td  { background:var(--caps-gold) !important; }
+  .schedule-table tr.caps-game.played-row td { background:#e8ffd4 !important; }
+  .score-field { display:flex; align-items:center; gap:6px; justify-content:center; }
+  .score-dash  { font-weight:700; color:var(--sub); }
+  .score-result { font-weight:700; font-size:14px; color:var(--text); }
+
+  /* ── NOTE ── */
+  .note { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.15); border-radius:8px; padding:12px 16px; font-size:12px; color:#AAB8CC; margin-bottom:16px; line-height:1.6; }
+  .note strong { color:var(--gold); }
+
+  /* ── STATUS BAR ── */
+  .status-bar { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.15); border-radius:8px; padding:10px 16px; margin-bottom:16px; display:flex; gap:20px; flex-wrap:wrap; font-size:12px; color:#AAB8CC; }
+  .status-bar strong { color:#fff; }
+
+  /* ── SCENARIOS ── */
+  .scenario-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media(max-width:700px){ .scenario-grid { grid-template-columns:1fr; } }
+  .team-card { background:#fff; border-radius:10px; box-shadow:0 3px 16px rgba(0,0,0,.25); overflow:hidden; }
+  .team-card-header { padding:12px 16px; color:#fff; font-family:'Bebas Neue'; font-size:16px; letter-spacing:2px; }
+  .team-card-body { padding:14px 16px; }
+  .scenario-item { display:flex; gap:10px; margin-bottom:10px; font-size:13px; line-height:1.45; }
+  .scenario-bullet { font-size:16px; flex-shrink:0; margin-top:1px; }
+  .scenario-clinch .scenario-bullet { color:var(--green); }
+  .scenario-likely .scenario-bullet { color:#1a70b8; }
+  .scenario-help   .scenario-bullet { color:var(--amber); }
+  .scenario-elim   .scenario-bullet { color:var(--red-dark); }
+  .scenario-info   .scenario-bullet { color:#1A2E5A; }
+
+  /* ── TIEBREAKERS ── */
+  .tb-section { margin-bottom:20px; }
+  .tb-title { font-family:'Bebas Neue'; font-size:15px; letter-spacing:2px; color:var(--gold); background:var(--red-dark); padding:8px 16px; border-radius:6px 6px 0 0; }
+  .tb-list { background:#fff; border-radius:0 0 8px 8px; overflow:hidden; }
+  .tb-row { display:flex; align-items:flex-start; gap:14px; padding:10px 16px; border-bottom:1px solid #ddeaff; font-size:13px; }
+  .tb-row:last-child { border-bottom:none; }
+  .tb-row:nth-child(even) { background:var(--ice); }
+  .tb-num { background:#1A2E5A; color:#fff; font-family:'Bebas Neue'; font-size:13px; letter-spacing:1px; min-width:32px; text-align:center; padding:2px 6px; border-radius:4px; flex-shrink:0; }
+  .tb-desc { line-height:1.45; }
+
+  /* ── SYNC BAR ── */
+  .sync-bar { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.15); border-radius:8px; padding:10px 16px; margin-bottom:16px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; font-size:12px; color:#AAB8CC; }
+  .sync-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+  .sync-dot.ok   { background:#2ecc71; box-shadow:0 0 6px #2ecc71; }
+  .sync-dot.warn { background:var(--gold); box-shadow:0 0 6px var(--gold); }
+  .sync-dot.err  { background:#e74c3c; box-shadow:0 0 6px #e74c3c; }
+  .sync-btn { padding:5px 14px; background:var(--red-dark); color:var(--gold); font-family:'Bebas Neue'; font-size:12px; letter-spacing:1px; border:none; border-radius:4px; cursor:pointer; transition:all .2s; }
+  .sync-btn:hover { background:var(--red-mid); }
+
+  /* ── SETUP PANEL ── */
+  .setup-card { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.18); border-radius:10px; padding:20px; margin-bottom:16px; }
+  .setup-card h3 { font-family:'Bebas Neue'; font-size:16px; letter-spacing:2px; color:var(--gold); margin-bottom:12px; }
+  .setup-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
+  .setup-label { font-size:12px; color:#AAB8CC; min-width:120px; }
+  .setup-input { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.25); border-radius:5px; padding:7px 12px; font-family:'Barlow'; font-size:13px; color:#fff; width:100%; max-width:420px; }
+  .setup-input:focus { outline:2px solid var(--gold); }
+  .setup-input::placeholder { color:rgba(255,255,255,.3); }
+  .btn-primary { padding:9px 22px; background:var(--gold); color:var(--red-dark); font-family:'Bebas Neue'; font-size:14px; letter-spacing:2px; border:none; border-radius:6px; cursor:pointer; transition:all .2s; }
+  .btn-primary:hover { background:#e0b030; }
+  .btn-secondary { padding:9px 22px; background:rgba(255,255,255,.12); color:#fff; font-family:'Bebas Neue'; font-size:13px; letter-spacing:1px; border:1px solid rgba(255,255,255,.2); border-radius:6px; cursor:pointer; transition:all .2s; }
+  .btn-secondary:hover { background:rgba(255,255,255,.2); }
+  .setup-step { display:flex; gap:14px; align-items:flex-start; margin-bottom:14px; }
+  .step-num { background:var(--red-dark); color:var(--gold); font-family:'Bebas Neue'; font-size:14px; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .step-text { font-size:13px; color:#AAB8CC; line-height:1.6; }
+  .step-text strong { color:#fff; }
+  .step-text code { background:rgba(255,255,255,.12); padding:1px 6px; border-radius:3px; font-size:12px; color:var(--gold); }
+
+  /* ── DIV SECTIONS (day 2/3) ── */
+  .div-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media(max-width:680px){ .div-grid { grid-template-columns:1fr; } }
+  .div-label { font-family:'Bebas Neue'; font-size:18px; letter-spacing:3px; color:var(--gold); margin-bottom:8px; }
+
+  .playoff-card { background:#fff; border-radius:10px; box-shadow:0 3px 16px rgba(0,0,0,.25); overflow:hidden; margin-top:10px; }
+  .playoff-matchup { display:flex; gap:16px; padding:16px; flex-wrap:wrap; }
+  .champ-game { flex:1; min-width:200px; background:var(--ice); border-radius:8px; padding:14px; border:1px solid var(--ice-mid); }
+  .champ-game-title { font-family:'Bebas Neue'; font-size:13px; letter-spacing:1px; color:var(--sub); margin-bottom:10px; }
+  .champ-team { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border); font-size:13px; }
+  .champ-team:last-child { border-bottom:none; }
+  .champ-team.top-seed { font-weight:700; color:var(--green); }
+
+  th[title] { cursor:help; border-bottom:1px dashed var(--gold); }
+
+  /* ── PIN OVERLAY ── */
+  .pin-overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 1000;
+    background: rgba(6, 16, 31, 0.97);
+    backdrop-filter: blur(8px);
+    align-items: center; justify-content: center;
+  }
+  .pin-overlay.visible { display: flex; }
+
+  .pin-modal {
+    background: linear-gradient(160deg, #0e1c3a 0%, #1a0510 100%);
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 16px;
+    padding: 36px 32px 28px;
+    width: 100%; max-width: 340px;
+    text-align: center;
+    box-shadow: 0 24px 80px rgba(0,0,0,.7);
+    animation: pinSlideIn .25s ease;
+  }
+  @keyframes pinSlideIn { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
+
+  .pin-icon  { font-size: 40px; margin-bottom: 10px; }
+  .pin-title { font-family:'Bebas Neue'; font-size:22px; letter-spacing:3px; color:#fff; margin-bottom:4px; }
+  .pin-sub   { font-size:12px; color:#AAB8CC; margin-bottom:22px; }
+
+  .pin-dots  { display:flex; justify-content:center; gap:12px; margin-bottom:22px; }
+  .pin-dot   { width:14px; height:14px; border-radius:50%; background:rgba(255,255,255,.15); border:2px solid rgba(255,255,255,.25); transition:all .15s; }
+  .pin-dot.filled { background:var(--gold); border-color:var(--gold); box-shadow:0 0 8px var(--gold); }
+  .pin-dot.error  { background:#e74c3c; border-color:#e74c3c; animation: pinShake .35s ease; }
+  @keyframes pinShake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-5px)} 60%{transform:translateX(5px)} }
+
+  .pin-keypad { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px; }
+  .pin-key {
+    padding: 16px 0;
+    font-family: 'Bebas Neue'; font-size: 22px; letter-spacing:1px;
+    background: rgba(255,255,255,.08);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all .15s;
+    user-select: none;
+  }
+  .pin-key:hover  { background:rgba(255,255,255,.16); border-color:rgba(255,255,255,.25); }
+  .pin-key:active { background:var(--red-dark); border-color:var(--gold); transform:scale(.96); }
+  .pin-key.zero   { grid-column: 2; }
+  .pin-key.back   { font-size:16px; }
+
+  .pin-cancel { font-size:12px; color:#556677; cursor:pointer; padding:6px; transition:color .2s; }
+  .pin-cancel:hover { color:#AAB8CC; }
+  .pin-error-msg { font-size:12px; color:#e74c3c; margin-bottom:10px; min-height:18px; }
+
+  /* ── ADMIN SESSION BADGE ── */
+  .admin-badge {
+    display: none;
+    position: fixed; bottom: 16px; right: 16px; z-index: 500;
+    background: var(--red-dark); color: var(--gold);
+    font-family: 'Bebas Neue'; font-size: 12px; letter-spacing:1.5px;
+    padding: 6px 14px; border-radius: 20px;
+    border: 1px solid var(--gold);
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,0,0,.5);
+    transition: all .2s;
+  }
+  .admin-badge:hover { background: var(--red-mid); }
+  .admin-badge.visible { display: block; }
+
+  /* ── HERO SECRET TAP ZONE ── */
+  .hero-secret { position:absolute; bottom:0; right:0; width:60px; height:40px; cursor:default; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-eyebrow">Southern Shore Breakers &amp; Goulds Pacer Minor Hockey Association</div>
+  <div class="hero-title">U11 A/B Female Provincials</div>
+  <div class="hero-sub">March 27 – 29, 2026 &nbsp;·&nbsp; Ken Williams Southern Shore Arena, Mobile, NL</div>
+  <div class="hero-badge">Live Standings Tracker</div>
+  <!-- Secret tap zone — 5 taps in bottom-right corner opens PIN prompt -->
+  <div class="hero-secret" id="hero-secret" onclick="secretTap()"></div>
+</div>
+
+<div class="container">
+
+  <div class="tabs">
+    <button class="tab active" onclick="showPanel('standings','this')">📊 Day 1 Standings</button>
+    <button class="tab" onclick="showPanel('schedule','this')">📅 Day 1 Schedule</button>
+    <button class="tab" onclick="showPanel('day23','this')">🏒 Day 2 &amp; 3</button>
+    <button class="tab" onclick="showPanel('scenarios','this')">🎯 Scenarios</button>
+    <button class="tab" onclick="showPanel('tiebreakers','this')">⚖️ Tiebreakers</button>
+  </div>
+
+  <!-- ══════════ STANDINGS PANEL ══════════ -->
+  <div id="panel-standings" class="panel active">
+
+    <div class="sync-bar" id="sync-bar">
+      <span class="sync-dot warn" id="sync-dot"></span>
+      <span id="sync-status">Not connected to Google Sheets — showing local data</span>
+      <button class="sync-btn" onclick="fetchSheetData()">↻ Refresh</button>
+      <span style="margin-left:auto;font-size:11px" id="sync-time"></span>
+    </div>
+
+    <div class="status-bar">
+      <span><strong id="sb-played">0</strong> games played (Day 1)</span>
+      <span><strong id="sb-remaining">8</strong> remaining</span>
+      <span id="sb-adiv-span" style="display:none">A Div: <strong id="sb-adiv"></strong></span>
+      <span id="sb-bdiv-span" style="display:none">B Div: <strong id="sb-bdiv"></strong></span>
+    </div>
+
+    <div class="note">
+      <strong>Day 1 standings</strong> determine division seeding. Top 4 teams → <strong>A Division</strong>, bottom 4 → <strong>B Division</strong>. Each team plays 2 games on Day 1. Caps ⭐ row highlighted in gold.
+    </div>
+
+    <div class="card">
+      <div class="card-header">🏆 <span>Day 1 Overall Standings</span> <span class="gold">— Top 4 → A Div &nbsp;|&nbsp; Bottom 4 → B Div</span></div>
+      <div style="overflow-x:auto">
+        <table class="standings-table">
+          <thead>
+            <tr>
+              <th class="left" style="width:30px">#</th>
+              <th class="left">Team</th>
+              <th>GP</th><th>W</th><th>L</th><th>T</th>
+              <th>GF</th><th>GA</th>
+              <th>PTS</th>
+              <th title="Goals For ÷ (Goals For + Goals Against) — 3rd tiebreaker">GA%</th>
+              <th>Max PTS</th>
+              <th>Division</th>
+            </tr>
+          </thead>
+          <tbody id="standings-body"></tbody>
+        </table>
+      </div>
+      <div style="padding:8px 14px;font-size:11px;color:var(--sub);background:#f5f8ff;border-top:1px solid #ddeaff">
+        GA% = GF ÷ (GF+GA) &nbsp;|&nbsp; Win=2pts, Tie=1pt, Loss=0pts &nbsp;|&nbsp; ⭐ = St. John's Caps
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════ SCHEDULE PANEL ══════════ -->
+  <div id="panel-schedule" class="panel">
+    <div class="note">
+      Scores are loaded from Google Sheets. See the <strong>Setup</strong> tab to connect your sheet. Caps games highlighted in gold ⭐.
+    </div>
+    <div class="card">
+      <div class="card-header">📅 <span>Day 1 Schedule – March 27</span></div>
+      <div style="overflow-x:auto">
+        <table class="schedule-table">
+          <thead><tr><th>Time</th><th>Visitor</th><th style="width:140px">Score</th><th>Home</th></tr></thead>
+          <tbody id="schedule-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ DAY 2 & 3 PANEL ══════════ -->
+  <div id="panel-day23" class="panel">
+
+    <div id="caps-div-banner" class="note" style="display:none"></div>
+
+    <div class="note" id="day23-note">
+      Division assignment happens after Day 1 standings are final. Once set in the Setup tab, round-robin standings and championship matchups will appear here.
+    </div>
+
+    <div class="div-grid" id="div-grid-container">
+      <div style="display:flex;flex-direction:column;gap:0">
+        <div class="div-label" id="div-a-label">⭐ A Division</div>
+        <div class="card" style="margin-top:8px;flex:none">
+          <div class="card-header">📅 <span>A Division Schedule</span></div>
+          <div style="overflow-x:auto">
+            <table class="schedule-table">
+              <thead><tr><th>Day</th><th>Time</th><th>Visitor</th><th style="width:120px">Score</th><th>Home</th></tr></thead>
+              <tbody id="sched-a-body"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card" style="margin-top:12px;flex:none">
+          <div class="card-header">📊 <span>A Division Standings</span> <span class="gold">— Top 2 Advance</span></div>
+          <div style="overflow-x:auto">
+            <table class="standings-table">
+              <thead><tr>
+                <th class="left">#</th><th class="left">Team</th>
+                <th>GP</th><th>W</th><th>L</th><th>T</th>
+                <th>GF</th><th>GA</th><th>PTS</th>
+                <th title="GF ÷ (GF+GA)">GA%</th>
+                <th>Max</th><th>Status</th>
+              </tr></thead>
+              <tbody id="standings-a-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0">
+        <div class="div-label" id="div-b-label">B Division</div>
+        <div class="card" style="margin-top:8px;flex:none">
+          <div class="card-header">📅 <span>B Division Schedule</span></div>
+          <div style="overflow-x:auto">
+            <table class="schedule-table">
+              <thead><tr><th>Day</th><th>Time</th><th>Visitor</th><th style="width:120px">Score</th><th>Home</th></tr></thead>
+              <tbody id="sched-b-body"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card" style="margin-top:12px;flex:none">
+          <div class="card-header">📊 <span>B Division Standings</span> <span class="gold">— Top 2 Advance</span></div>
+          <div style="overflow-x:auto">
+            <table class="standings-table">
+              <thead><tr>
+                <th class="left">#</th><th class="left">Team</th>
+                <th>GP</th><th>W</th><th>L</th><th>T</th>
+                <th>GF</th><th>GA</th><th>PTS</th>
+                <th title="GF ÷ (GF+GA)">GA%</th>
+                <th>Max</th><th>Status</th>
+              </tr></thead>
+              <tbody id="standings-b-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="championship-card">
+      <div class="card-header">🏆 <span>Championship Games – Sunday March 29</span></div>
+      <div class="playoff-matchup" id="playoff-matchup">
+        <div style="color:var(--sub);font-size:13px;padding:8px">Set up divisions first to see championship matchups.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════ SCENARIOS PANEL ══════════ -->
+  <div id="panel-scenarios" class="panel">
+    <div class="note" id="scenarios-main-note">
+      <strong>Day 1 scenarios:</strong> Each team plays 2 games (max 4 pts). Top 4 advance to A Division, bottom 4 to B Division. Teams tied on the boundary (4th/5th) will be resolved by tiebreakers. <strong>Day 2/3 scenarios</strong> appear once divisions are set — each team plays 3 round-robin games (max 6 pts), top 2 in each division go to the Championship Game.
+    </div>
+
+    <!-- Section 1: Caps division (shown first once divisions set) -->
+    <div id="scenarios-section-caps" style="display:none;margin-bottom:28px">
+      <div style="font-family:'Bebas Neue';letter-spacing:2px;font-size:14px;color:var(--gold);margin-bottom:10px;" id="scenarios-caps-label">CAPS DIVISION — CHAMPIONSHIP SCENARIOS</div>
+      <div class="scenario-grid" id="scenarios-grid-caps"></div>
+    </div>
+
+    <!-- Section 2: Other division (shown second once divisions set) -->
+    <div id="scenarios-section-other" style="display:none;margin-bottom:28px">
+      <div style="font-family:'Bebas Neue';letter-spacing:2px;font-size:14px;color:var(--gold);margin-bottom:10px;" id="scenarios-other-label">OTHER DIVISION — CHAMPIONSHIP SCENARIOS</div>
+      <div class="scenario-grid" id="scenarios-grid-other"></div>
+    </div>
+
+    <!-- Section 3: Day 1 seeding (always shown, moves to bottom once divisions set) -->
+    <div id="scenarios-section-day1">
+      <div style="font-family:'Bebas Neue';letter-spacing:2px;font-size:14px;color:var(--gold);margin-bottom:10px;" id="scenarios-d1-label">DAY 1 — DIVISION SEEDING SCENARIOS</div>
+      <div class="scenario-grid" id="scenarios-grid-d1"></div>
+    </div>
+
+  </div>
+
+  <!-- ══════════ TIEBREAKERS PANEL ══════════ -->
+  <div id="panel-tiebreakers" class="panel">
+
+    <div class="tb-section">
+      <div class="tb-title">Two-Team Tiebreaker</div>
+      <div class="tb-list">
+        <div class="tb-row"><div class="tb-num">TB 1</div><div class="tb-desc">Winner of the Preliminary Round game between the two tied teams gains the higher position.</div></div>
+        <div class="tb-row"><div class="tb-num">TB 2</div><div class="tb-desc">The team with the most wins in the Preliminary Round gains the higher position.</div></div>
+        <div class="tb-row"><div class="tb-num">TB 3</div><div class="tb-desc">Best Goal Average using <em>all</em> Preliminary Round games: GF ÷ (GF + GA). Higher percentage advances. <em>Example: 10 GF, 4 GA → 10 ÷ 14 = .714</em></div></div>
+        <div class="tb-row"><div class="tb-num">TB 4</div><div class="tb-desc">Fewest penalty minutes in all Preliminary Round games.</div></div>
+        <div class="tb-row"><div class="tb-num">TB 5</div><div class="tb-desc">The team that scored the first goal in the head-to-head game between the tied teams.</div></div>
+        <div class="tb-row"><div class="tb-num">TB 6</div><div class="tb-desc">Single coin toss determines the higher position.</div></div>
+      </div>
+    </div>
+
+    <div class="tb-section">
+      <div class="tb-title">Three or More Teams Tied</div>
+      <div class="tb-list">
+        <div class="tb-row"><div class="tb-num">TB 1</div><div class="tb-desc">Most wins in head-to-head games <em>among tied teams only</em>.</div></div>
+        <div class="tb-row"><div class="tb-num">TB 2</div><div class="tb-desc">Best Goal Average in head-to-head games among tied teams only: GF ÷ (GF + GA). Once a team is seeded, remaining tied teams continue — <strong>do not revert to 2-team tiebreaker</strong>.</div></div>
+        <div class="tb-row"><div class="tb-num">TB 3</div><div class="tb-desc">Fewest goals against in <em>all</em> Preliminary Round games played.</div></div>
+        <div class="tb-row"><div class="tb-num">TB 4</div><div class="tb-desc">Most goals for in <em>all</em> Preliminary Round games played.</div></div>
+        <div class="tb-row"><div class="tb-num">TB 5</div><div class="tb-desc">Fewest penalty minutes in all Preliminary Round games.</div></div>
+        <div class="tb-row"><div class="tb-num">TB 6</div><div class="tb-desc">Coin toss. In a 3-team coin toss, the odd team gains the highest position.</div></div>
+      </div>
+    </div>
+
+    <div class="tb-section">
+      <div class="tb-title">Key Notes</div>
+      <div class="tb-list">
+        <div class="tb-row"><div class="tb-num">⚠</div><div class="tb-desc"><strong>Points always come first.</strong> A team with more points ranks higher regardless of tiebreakers.</div></div>
+        <div class="tb-row"><div class="tb-num">⚠</div><div class="tb-desc"><strong>Day 1 boundary (4th/5th):</strong> If teams are tied on the A/B Division cutoff, tiebreakers above determine which division they enter.</div></div>
+        <div class="tb-row"><div class="tb-num">⚠</div><div class="tb-desc"><strong>GA% formula:</strong> GF ÷ (GF + GA) — <em>not</em> GF ÷ GA. Goals matter even in blowout wins — protect your percentage.</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════ SETUP PANEL ══════════ -->
+  <div id="panel-setup" class="panel">
+
+    <div class="setup-card">
+      <h3>🔐 Admin Session</h3>
+      <div class="step-text" style="margin-bottom:14px">
+        You are currently logged in as admin. The session auto-locks after <strong style="color:#fff">30 minutes</strong> of inactivity.
+      </div>
+      <div class="setup-row" style="margin-bottom:12px">
+        <label class="setup-label">New PIN (4 digits)</label>
+        <input class="setup-input" id="new-pin-input" type="password" inputmode="numeric" maxlength="4" placeholder="Enter new 4-digit PIN" style="max-width:200px" />
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn-primary" onclick="changePin()">🔑 Update PIN</button>
+        <button class="btn-secondary" onclick="lockAdmin();showPanel('standings',null);document.querySelectorAll('.tab').forEach((t,i)=>{if(i===0)t.classList.add('active');else t.classList.remove('active');})">🔒 Lock &amp; Exit</button>
+      </div>
+      <div id="pin-change-status" style="margin-top:10px;font-size:12px;color:#AAB8CC"></div>
+    </div>
+
+    <div class="setup-card">
+      <h3>📡 Google Sheets Connection</h3>
+
+      <div class="setup-step">
+        <div class="step-num">1</div>
+        <div class="step-text">
+          <strong>Create your Google Sheet</strong> using the template below. Make it public (View access for all) so this page can read it.<br>
+          File → Share → Anyone with the link → Viewer
+        </div>
+      </div>
+      <div class="setup-step">
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <strong>Copy your Sheet ID</strong> from the URL:<br>
+          <code>https://docs.google.com/spreadsheets/d/<strong>SHEET_ID_HERE</strong>/edit</code>
+        </div>
+      </div>
+      <div class="setup-step">
+        <div class="step-num">3</div>
+        <div class="step-text">
+          <strong>Paste the Sheet ID below</strong> and click Save. This page will automatically pull scores from your sheet every 60 seconds.
+        </div>
+      </div>
+
+      <div class="setup-row">
+        <label class="setup-label">Google Sheet ID</label>
+        <input class="setup-input" id="sheet-id-input" placeholder="e.g. 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms" />
+      </div>
+      <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn-primary" onclick="saveSheetId()">💾 Save &amp; Connect</button>
+        <button class="btn-secondary" onclick="fetchSheetData()">↻ Test Connection</button>
+        <button class="btn-secondary" onclick="clearSheetId()">✕ Disconnect</button>
+      </div>
+      <div id="sheet-connect-status" style="margin-top:12px;font-size:12px;color:#AAB8CC"></div>
+    </div>
+
+    <div class="setup-card">
+      <h3>📋 Google Sheet Template Structure</h3>
+      <div class="step-text" style="margin-bottom:14px">
+        Your Google Sheet needs <strong>3 tabs</strong> named exactly as shown. You only edit the white/yellow cells — the rest is calculated.
+      </div>
+
+      <div style="margin-bottom:16px">
+        <div style="font-family:'Bebas Neue';letter-spacing:1px;color:var(--gold);font-size:13px;margin-bottom:8px">TAB 1: "Day1" — Columns A through D</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;background:#fff;border-radius:6px;overflow:hidden">
+          <thead><tr>
+            <th style="background:#1A2E5A;color:#fff;padding:7px;text-align:left">A: Game</th>
+            <th style="background:#1A2E5A;color:#fff;padding:7px">B: Visitor Goals</th>
+            <th style="background:#1A2E5A;color:#fff;padding:7px">C: Home Goals</th>
+            <th style="background:#1A2E5A;color:#fff;padding:7px;text-align:left">D: Notes</th>
+          </tr></thead>
+          <tbody id="sheet-template-d1"></tbody>
+        </table>
+      </div>
+
+      <div style="margin-bottom:16px">
+        <div style="font-family:'Bebas Neue';letter-spacing:1px;color:var(--gold);font-size:13px;margin-bottom:8px">TAB 2: "DivA" — Same structure for A Division round-robin (6 games)</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;background:#fff;border-radius:6px;overflow:hidden">
+          <thead><tr>
+            <th style="background:#1A2E5A;color:#fff;padding:7px;text-align:left">A: Game</th>
+            <th style="background:#1A2E5A;color:#fff;padding:7px">B: Visitor Goals</th>
+            <th style="background:#1A2E5A;color:#fff;padding:7px">C: Home Goals</th>
+            <th style="background:#1A2E5A;color:#fff;padding:7px;text-align:left">D: Notes</th>
+          </tr></thead>
+          <tbody id="sheet-template-da"></tbody>
+        </table>
+      </div>
+
+      <div style="margin-bottom:16px">
+        <div style="font-family:'Bebas Neue';letter-spacing:1px;color:var(--gold);font-size:13px;margin-bottom:8px">TAB 3: "DivB" — Same structure for B Division round-robin (6 games)</div>
+        <div class="step-text">Same layout as DivA — 6 rows for the 6 B Division round-robin games.</div>
+      </div>
+
+      <div style="font-size:12px;color:#AAB8CC;line-height:1.7;margin-top:6px">
+        💡 <strong style="color:#fff">Leave cells blank</strong> for unplayed games — the app treats blank as "not yet played".<br>
+        💡 <strong style="color:#fff">Enter whole numbers only</strong> (0, 1, 2, 3…) — no decimals.<br>
+        💡 The app re-reads your sheet every <strong style="color:#fff">60 seconds</strong> automatically, or click ↻ Refresh anytime.
+      </div>
+    </div>
+
+    <div class="setup-card">
+      <h3>🔀 Division Assignment</h3>
+      <div class="step-text" style="margin-bottom:14px">After Day 1 is complete, enter which teams are in each division and their seeds. This unlocks the Day 2 &amp; 3 tab.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px">
+        <div>
+          <div style="font-family:'Bebas Neue';color:var(--gold);letter-spacing:1px;margin-bottom:8px">A DIVISION (Seeds 1–4)</div>
+          <div id="div-a-inputs"></div>
+        </div>
+        <div>
+          <div style="font-family:'Bebas Neue';color:var(--gold);letter-spacing:1px;margin-bottom:8px">B DIVISION (Seeds 1–4)</div>
+          <div id="div-b-inputs"></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn-primary" onclick="autoAssignDivisions()">⚡ Auto-Fill from Day 1 Standings</button>
+        <button class="btn-secondary" onclick="saveDivisions()">✅ Save Divisions</button>
+        <button class="btn-secondary" onclick="resetDivisions()" style="border-color:rgba(200,16,46,.5);color:#FFB8B8" id="reset-div-btn">🗑 Reset Divisions</button>
+      </div>
+      <div id="div-save-status" style="margin-top:10px;font-size:12px;color:#AAB8CC"></div>
+    </div>
+
+  </div>
+
+</div><!-- /container -->
+
+<!-- ══════════ PIN OVERLAY ══════════ -->
+<div class="pin-overlay" id="pin-overlay">
+  <div class="pin-modal">
+    <div class="pin-icon">🔐</div>
+    <div class="pin-title">Admin Access</div>
+    <div class="pin-sub">Enter your 4-digit PIN to access setup</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-error-msg" id="pin-error"></div>
+    <div class="pin-keypad">
+      <button class="pin-key" onclick="pinKey('1')">1</button>
+      <button class="pin-key" onclick="pinKey('2')">2</button>
+      <button class="pin-key" onclick="pinKey('3')">3</button>
+      <button class="pin-key" onclick="pinKey('4')">4</button>
+      <button class="pin-key" onclick="pinKey('5')">5</button>
+      <button class="pin-key" onclick="pinKey('6')">6</button>
+      <button class="pin-key" onclick="pinKey('7')">7</button>
+      <button class="pin-key" onclick="pinKey('8')">8</button>
+      <button class="pin-key" onclick="pinKey('9')">9</button>
+      <button class="pin-key zero" onclick="pinKey('0')">0</button>
+      <button class="pin-key back" onclick="pinBack()">⌫</button>
+    </div>
+    <div class="pin-cancel" onclick="closePinOverlay()">Cancel</div>
+  </div>
+</div>
+
+<!-- Admin session badge (shown when unlocked) -->
+<button class="admin-badge" id="admin-badge" onclick="showPanel('setup',null)">
+  ⚙️ ADMIN · TAP TO OPEN SETUP
+</button>
+
+<script>
+// ════════════════════════════════════════
+// PIN & ADMIN SESSION
+// ════════════════════════════════════════
+// PIN is stored as a simple hash so it's not in plain text.
+// Default PIN is 1234 — change it via the Setup panel once unlocked.
+// To hash a new PIN: btoa('u11-' + yourPin)  (run in browser console)
+const DEFAULT_PIN_HASH = btoa('u11-1234'); // change via setup once unlocked
+
+let pinBuffer    = '';
+let pinUnlocked  = false;
+let secretTaps   = 0;
+let secretTimer  = null;
+let adminTimeout = null;
+
+// Secret tap counter — 5 taps on the hero corner within 3 seconds
+function secretTap() {
+  secretTaps++;
+  if (secretTimer) clearTimeout(secretTimer);
+  secretTimer = setTimeout(() => { secretTaps = 0; }, 3000);
+  if (secretTaps >= 5) {
+    secretTaps = 0;
+    clearTimeout(secretTimer);
+    openPinOverlay();
+  }
+}
+
+function openPinOverlay() {
+  pinBuffer = '';
+  updatePinDots();
+  document.getElementById('pin-error').textContent = '';
+  document.getElementById('pin-overlay').classList.add('visible');
+}
+
+function closePinOverlay() {
+  document.getElementById('pin-overlay').classList.remove('visible');
+  pinBuffer = '';
+  updatePinDots();
+}
+
+function pinKey(digit) {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += digit;
+  updatePinDots();
+  if (pinBuffer.length === 4) {
+    setTimeout(checkPin, 120); // slight delay so last dot fills visually
+  }
+}
+
+function pinBack() {
+  pinBuffer = pinBuffer.slice(0, -1);
+  updatePinDots();
+  document.getElementById('pin-error').textContent = '';
+}
+
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById(`pd${i}`);
+    dot.className = 'pin-dot' + (i < pinBuffer.length ? ' filled' : '');
+  }
+}
+
+function checkPin() {
+  const storedHash = localStorage.getItem('u11_pin_hash') || DEFAULT_PIN_HASH;
+  const enteredHash = btoa('u11-' + pinBuffer);
+  if (enteredHash === storedHash) {
+    pinUnlocked = true;
+    closePinOverlay();
+    showAdminBadge();
+    showPanel('setup', null);
+    // Auto-lock after 30 minutes of inactivity
+    resetAdminTimeout();
+  } else {
+    // Flash error
+    for (let i = 0; i < 4; i++) document.getElementById(`pd${i}`).className = 'pin-dot error';
+    document.getElementById('pin-error').textContent = 'Incorrect PIN — try again';
+    setTimeout(() => {
+      pinBuffer = '';
+      updatePinDots();
+      document.getElementById('pin-error').textContent = '';
+    }, 1000);
+  }
+}
+
+function showAdminBadge() {
+  document.getElementById('admin-badge').classList.add('visible');
+}
+
+function hideAdminBadge() {
+  document.getElementById('admin-badge').classList.remove('visible');
+}
+
+function resetAdminTimeout() {
+  if (adminTimeout) clearTimeout(adminTimeout);
+  adminTimeout = setTimeout(lockAdmin, 30 * 60 * 1000); // 30 min
+}
+
+function lockAdmin() {
+  pinUnlocked = false;
+  hideAdminBadge();
+  // If currently on setup panel, navigate away
+  const setupPanel = document.getElementById('panel-setup');
+  if (setupPanel && setupPanel.classList.contains('active')) {
+    showPanel('standings', null);
+    document.querySelectorAll('.tab').forEach((t,i) => { if(i===0) t.classList.add('active'); else t.classList.remove('active'); });
+  }
+}
+
+function changePin() {
+  const input = document.getElementById('new-pin-input');
+  const val   = input.value.trim();
+  const status = document.getElementById('pin-change-status');
+  if (!/^\d{4}$/.test(val)) {
+    status.textContent = '⚠ PIN must be exactly 4 digits.';
+    status.style.color = '#e74c3c';
+    return;
+  }
+  localStorage.setItem('u11_pin_hash', btoa('u11-' + val));
+  input.value = '';
+  status.textContent = '✅ PIN updated successfully.';
+  status.style.color = '#2ecc71';
+}
+
+// ════════════════════════════════════════
+// STATIC DATA
+// ════════════════════════════════════════
+const TEAMS = [
+  "St. John's Caps",  // 0 ← CAPS
+  "CBR",              // 1
+  "Mount Pearl",      // 2
+  "Northeast",        // 3
+  "Corner Brook",     // 4
+  "Paradise",         // 5
+  "Exploits",         // 6
+  "Goulds",           // 7
+];
+const CAPS_IDX = 0;
+const TEAM_COLORS = ["#C8102E","#1F4E79","#7B3FA0","#145A32","#4B1D7A","#7A5200","#1A6E35","#7D3C98"];
+
+// Day 1: [visitor_idx, home_idx]
+const DAY1_SCHEDULE = [
+  {time:"8:00",  v:0, h:1},
+  {time:"9:15",  v:2, h:3},
+  {time:"10:30", v:4, h:5},
+  {time:"11:45", v:6, h:7},
+  {time:"1:00",  v:1, h:2},
+  {time:"2:15",  v:5, h:0},
+  {time:"3:30",  v:6, h:4},
+  {time:"5:30",  v:3, h:7},
+];
+
+// Day 2/3 schedule templates (seed indices 0=1st, 1=2nd, 2=3rd, 3=4th)
+const DIV_A_SCHEDULE = [
+  {day:"Sat Mar 28", time:"8:00",  v:3, h:2},
+  {day:"Sat Mar 28", time:"9:15",  v:1, h:0},
+  {day:"Sat Mar 28", time:"1:00",  v:3, h:1},
+  {day:"Sat Mar 28", time:"2:15",  v:2, h:0},
+  {day:"Sun Mar 29", time:"10:30", v:2, h:1},
+  {day:"Sun Mar 29", time:"11:45", v:0, h:3},
+];
+const DIV_B_SCHEDULE = [
+  {day:"Sat Mar 28", time:"10:30", v:3, h:2},
+  {day:"Sat Mar 28", time:"11:45", v:1, h:0},
+  {day:"Sat Mar 28", time:"3:30",  v:3, h:1},
+  {day:"Sat Mar 28", time:"4:45",  v:2, h:0},
+  {day:"Sun Mar 29", time:"8:00",  v:2, h:1},
+  {day:"Sun Mar 29", time:"9:15",  v:0, h:3},
+];
+
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+let scores1 = DAY1_SCHEDULE.map(() => ({v:null, h:null}));
+let scoresA  = DIV_A_SCHEDULE.map(() => ({v:null, h:null}));
+let scoresB  = DIV_B_SCHEDULE.map(() => ({v:null, h:null}));
+
+// divisions[div] = array of 4 team indices in seed order [1st,2nd,3rd,4th]
+let divisions = {A: [], B: []};
+let divisionsSet = false;
+
+let sheetId = localStorage.getItem('u11_sheet_id') || '';
+let lastSync = null;
+let autoRefreshTimer = null;
+
+// ════════════════════════════════════════
+// GOOGLE SHEETS FETCH
+// ════════════════════════════════════════
+async function fetchSheetData() {
+  if (!sheetId) {
+    setSyncStatus('warn', 'No Sheet ID configured — go to Setup tab to connect.');
+    return;
+  }
+  setSyncStatus('warn', 'Fetching from Google Sheets…');
+  try {
+    const base = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
+
+    // Fetch Day1
+    const d1 = await fetchTab(base, 'Day1');
+    if (d1) parseDay1Scores(d1);
+
+    // Fetch DivA
+    const da = await fetchTab(base, 'DivA');
+    if (da) parseDivScores(da, 'A');
+
+    // Fetch DivB
+    const db = await fetchTab(base, 'DivB');
+    if (db) parseDivScores(db, 'B');
+
+    lastSync = new Date();
+    setSyncStatus('ok', `Connected · Last updated ${lastSync.toLocaleTimeString()}`);
+    document.getElementById('sync-time').textContent = '';
+  } catch(e) {
+    setSyncStatus('err', `Connection error: ${e.message}. Check your Sheet ID and sharing settings.`);
+  }
+  renderAll();
+}
+
+async function fetchTab(base, tabName) {
+  const url = `${base}&sheet=${encodeURIComponent(tabName)}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status} for tab "${tabName}"`);
+  return await res.text();
+}
+
+function parseDay1Scores(csv) {
+  const rows = parseCSV(csv);
+  rows.forEach((row, i) => {
+    if (i >= DAY1_SCHEDULE.length) return;
+    const vg = parseGoal(row[1]);
+    const hg = parseGoal(row[2]);
+    scores1[i] = {v: vg, h: hg};
+  });
+}
+
+function parseDivScores(csv, div) {
+  const rows = parseCSV(csv);
+  const target = div === 'A' ? scoresA : scoresB;
+  const sched  = div === 'A' ? DIV_A_SCHEDULE : DIV_B_SCHEDULE;
+  rows.forEach((row, i) => {
+    if (i >= sched.length) return;
+    target[i] = {v: parseGoal(row[1]), h: parseGoal(row[2])};
+  });
+}
+
+function parseCSV(text) {
+  return text.trim().split('\n').map(line =>
+    line.split(',').map(c => c.replace(/^"|"$/g,'').trim())
+  );
+}
+
+function parseGoal(val) {
+  if (val === '' || val === undefined || val === null) return null;
+  const n = parseInt(val, 10);
+  return isNaN(n) ? null : n;
+}
+
+function setSyncStatus(state, msg) {
+  const dot = document.getElementById('sync-dot');
+  dot.className = `sync-dot ${state}`;
+  document.getElementById('sync-status').textContent = msg;
+}
+
+function saveSheetId() {
+  const val = document.getElementById('sheet-id-input').value.trim();
+  if (!val) { document.getElementById('sheet-connect-status').textContent = '⚠ Please enter a Sheet ID.'; return; }
+  sheetId = val;
+  localStorage.setItem('u11_sheet_id', val);
+  document.getElementById('sheet-connect-status').textContent = '✅ Sheet ID saved. Connecting…';
+  startAutoRefresh();
+  fetchSheetData();
+}
+
+function clearSheetId() {
+  sheetId = '';
+  localStorage.removeItem('u11_sheet_id');
+  document.getElementById('sheet-id-input').value = '';
+  document.getElementById('sheet-connect-status').textContent = 'Disconnected.';
+  setSyncStatus('warn', 'Not connected to Google Sheets');
+  if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+}
+
+function startAutoRefresh() {
+  if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+  autoRefreshTimer = setInterval(() => {
+    fetchSheetData();
+  }, 60000);
+}
+
+// ════════════════════════════════════════
+// CALCULATIONS
+// ════════════════════════════════════════
+function calcDay1() {
+  const stats = TEAMS.map((_, i) => ({idx:i, gp:0, w:0, l:0, t:0, gf:0, ga:0, pts:0, gaAvg:0, maxPts:0}));
+  DAY1_SCHEDULE.forEach((g, gi) => {
+    const s = scores1[gi];
+    if (s.v === null || s.h === null) return;
+    const vs = stats[g.v], hs = stats[g.h];
+    vs.gp++; hs.gp++;
+    vs.gf += s.v; vs.ga += s.h;
+    hs.gf += s.h; hs.ga += s.v;
+    if      (s.v > s.h) { vs.w++; hs.l++; }
+    else if (s.h > s.v) { hs.w++; vs.l++; }
+    else                { vs.t++; hs.t++; }
+    vs.pts = vs.w*2 + vs.t;
+    hs.pts = hs.w*2 + hs.t;
+  });
+  stats.forEach(s => {
+    s.gaAvg  = (s.gf + s.ga) > 0 ? s.gf / (s.gf + s.ga) : 0;
+    s.maxPts = s.pts + (2 - s.gp) * 2;
+  });
+  stats.sort((a,b) => b.pts - a.pts || b.w - a.w || b.gaAvg - a.gaAvg);
+  return stats;
+}
+
+function calcDivStandings(divTeams, scores, schedule) {
+  if (!divTeams || divTeams.length < 4) return [];
+  const stats = divTeams.map(ti => ({idx:ti, gp:0, w:0, l:0, t:0, gf:0, ga:0, pts:0, gaAvg:0, maxPts:0, status:'contention'}));
+  schedule.forEach((g, gi) => {
+    const s = scores[gi];
+    if (s.v === null || s.h === null) return;
+    const vs = stats[g.v], hs = stats[g.h];
+    vs.gp++; hs.gp++;
+    vs.gf += s.v; vs.ga += s.h;
+    hs.gf += s.h; hs.ga += s.v;
+    if      (s.v > s.h) { vs.w++; hs.l++; }
+    else if (s.h > s.v) { hs.w++; vs.l++; }
+    else                { vs.t++; hs.t++; }
+    vs.pts = vs.w*2 + vs.t;
+    hs.pts = hs.w*2 + hs.t;
+  });
+  stats.forEach(s => {
+    s.gaAvg  = (s.gf + s.ga) > 0 ? s.gf / (s.gf + s.ga) : 0;
+    s.maxPts = s.pts + (3 - s.gp) * 2;
+  });
+  stats.sort((a,b) => b.pts - a.pts || b.w - a.w || b.gaAvg - a.gaAvg);
+  stats.forEach((s, rank) => {
+    if (s.gp === 3) {
+      s.status = rank < 2 ? 'clinched' : 'eliminated';
+    } else {
+      const third = stats[2];
+      if (s.maxPts < (third ? third.pts : 0)) s.status = 'eliminated';
+      else if (rank < 2 && s.pts > (third ? third.maxPts : 0)) s.status = 'clinched';
+      else s.status = 'contention';
+    }
+  });
+  return stats;
+}
+
+// ════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════
+function renderAll() {
+  renderDay1Standings();
+  renderDay1Schedule();
+  renderDay23();
+  renderScenarios();
+  renderSheetTemplate();
+  renderDivInputs();
+}
+
+function renderDay1Standings() {
+  const stats = calcDay1();
+  const tbody = document.getElementById('standings-body');
+  tbody.innerHTML = '';
+  const played = scores1.filter(s => s.v !== null && s.h !== null).length;
+  document.getElementById('sb-played').textContent = played;
+  document.getElementById('sb-remaining').textContent = 8 - played;
+
+  const aTeams = [], bTeams = [];
+  stats.forEach((s, rank) => {
+    if (rank < 4) aTeams.push(TEAMS[s.idx]);
+    else          bTeams.push(TEAMS[s.idx]);
+  });
+  if (aTeams.length) { document.getElementById('sb-adiv-span').style.display=''; document.getElementById('sb-adiv').textContent = aTeams.slice(0,2).join(', ') + (aTeams.length>2?'…':''); }
+  if (bTeams.length) { document.getElementById('sb-bdiv-span').style.display=''; document.getElementById('sb-bdiv').textContent = bTeams.slice(0,2).join(', ') + (bTeams.length>2?'…':''); }
+
+  const statusMap2 = {
+    A: '<span class="status-pill status-a-div">A Division</span>',
+    B: '<span class="status-pill status-b-div">B Division</span>',
+  };
+  stats.forEach((s, rank) => {
+    const tr = document.createElement('tr');
+    if (s.idx === CAPS_IDX) tr.className = 'caps-row';
+    const badge = `<span class="rank-badge rank-${rank<2?rank+1:'other'}">${rank+1}</span>`;
+    const gaStr = (s.gf + s.ga) > 0 ? s.gaAvg.toFixed(3) : '—';
+    const div   = rank < 4 ? 'A' : 'B';
+    const seed  = rank < 4 ? rank+1 : rank-3;
+    tr.innerHTML = `
+      <td>${badge}</td>
+      <td class="team-name">${TEAMS[s.idx]}${s.idx===CAPS_IDX?' ⭐':''}</td>
+      <td>${s.gp}</td><td>${s.w}</td><td>${s.l}</td><td>${s.t}</td>
+      <td>${s.gf}</td><td>${s.ga}</td>
+      <td class="pts-cell">${s.pts}</td>
+      <td>${gaStr}</td>
+      <td class="max-pts">${s.maxPts}</td>
+      <td>${statusMap2[div]} <span style="font-size:11px;color:var(--sub)">(${seed})</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderDay1Schedule() {
+  const tbody = document.getElementById('schedule-body');
+  tbody.innerHTML = '';
+  DAY1_SCHEDULE.forEach((g, gi) => {
+    const s = scores1[gi];
+    const played = s.v !== null && s.h !== null;
+    const isCaps = g.v === CAPS_IDX || g.h === CAPS_IDX;
+    const tr = document.createElement('tr');
+    tr.className = [played ? 'played-row' : '', isCaps ? 'caps-game' : ''].filter(Boolean).join(' ');
+    const scoreCell = played
+      ? `<div class="score-field"><span class="score-result">${s.v} – ${s.h}</span></div>`
+      : `<div class="score-field"><span style="color:var(--sub);font-size:12px">not played</span></div>`;
+    tr.innerHTML = `
+      <td style="font-size:12px;white-space:nowrap">${g.time}</td>
+      <td style="text-align:right;font-weight:${g.v===CAPS_IDX?'700':'400'}">${TEAMS[g.v]}${g.v===CAPS_IDX?' ⭐':''}</td>
+      <td>${scoreCell}</td>
+      <td style="font-weight:${g.h===CAPS_IDX?'700':'400'}">${TEAMS[g.h]}${g.h===CAPS_IDX?' ⭐':''}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderDay23() {
+  const capsDivEntry = Object.entries(divisions).find(([div, teams]) => teams.includes(CAPS_IDX));
+  const banner = document.getElementById('caps-div-banner');
+  const note   = document.getElementById('day23-note');
+
+  if (!divisionsSet || divisions.A.length < 4) {
+    note.style.display = '';
+    banner.style.display = 'none';
+    ['sched-a-body','sched-b-body','standings-a-body','standings-b-body'].forEach(id => {
+      document.getElementById(id).innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--sub);padding:14px;font-size:13px">Set up divisions in the Setup tab first.</td></tr>`;
+    });
+    document.getElementById('playoff-matchup').innerHTML = `<div style="color:var(--sub);font-size:13px;padding:8px">Set up divisions first.</div>`;
+    return;
+  }
+
+  note.style.display = 'none';
+  if (capsDivEntry) {
+    const [div, teams] = capsDivEntry;
+    const seed = teams.indexOf(CAPS_IDX) + 1;
+    banner.style.display = '';
+    banner.innerHTML = `⭐ <strong>St. John's Caps</strong> are in <strong>${div} Division</strong> (Seed ${seed}) — tracking their games below.`;
+    // Update division column labels dynamically
+    const aLabel = document.getElementById('div-a-label');
+    const bLabel = document.getElementById('div-b-label');
+    if (aLabel) aLabel.textContent = div === 'A' ? '⭐ A Division (Caps)' : 'A Division';
+    if (bLabel) bLabel.textContent = div === 'B' ? '⭐ B Division (Caps)' : 'B Division';
+  }
+
+  renderDivSchedule('A', DIV_A_SCHEDULE, divisions.A, scoresA, 'sched-a-body');
+  renderDivSchedule('B', DIV_B_SCHEDULE, divisions.B, scoresB, 'sched-b-body');
+  renderDivStandingsTable('A', divisions.A, calcDivStandings(divisions.A, scoresA, DIV_A_SCHEDULE), 'standings-a-body');
+  renderDivStandingsTable('B', divisions.B, calcDivStandings(divisions.B, scoresB, DIV_B_SCHEDULE), 'standings-b-body');
+  renderChampionship();
+}
+
+function renderDivSchedule(div, schedule, teams, scores, tbodyId) {
+  const tbody = document.getElementById(tbodyId);
+  tbody.innerHTML = '';
+  schedule.forEach((g, gi) => {
+    const vTeam = teams[g.v], hTeam = teams[g.h];
+    const s = scores[gi];
+    const played = s.v !== null && s.h !== null;
+    const isCaps = vTeam === CAPS_IDX || hTeam === CAPS_IDX;
+    const tr = document.createElement('tr');
+    tr.className = [played ? 'played-row' : '', isCaps ? 'caps-game' : ''].filter(Boolean).join(' ');
+    const scoreCell = played
+      ? `<div class="score-field"><span class="score-result">${s.v} – ${s.h}</span></div>`
+      : `<div class="score-field"><span style="color:var(--sub);font-size:12px">pending</span></div>`;
+    tr.innerHTML = `
+      <td style="font-size:11px;white-space:nowrap">${g.day}</td>
+      <td style="font-size:11px;white-space:nowrap">${g.time}</td>
+      <td style="text-align:right;font-weight:${vTeam===CAPS_IDX?'700':'400'}">${TEAMS[vTeam]}${vTeam===CAPS_IDX?' ⭐':''}</td>
+      <td>${scoreCell}</td>
+      <td style="font-weight:${hTeam===CAPS_IDX?'700':'400'}">${TEAMS[hTeam]}${hTeam===CAPS_IDX?' ⭐':''}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderDivStandingsTable(div, teams, stats, tbodyId) {
+  const tbody = document.getElementById(tbodyId);
+  tbody.innerHTML = '';
+  const statusMap = {
+    clinched:   '<span class="status-pill status-clinched">✓ CLINCHED</span>',
+    eliminated: '<span class="status-pill status-eliminated">✗ ELIMINATED</span>',
+    contention: '<span class="status-pill status-contention">In Contention</span>',
+  };
+  stats.forEach((s, rank) => {
+    const tr = document.createElement('tr');
+    if (s.idx === CAPS_IDX) tr.className = 'caps-row';
+    const badge = `<span class="rank-badge rank-${rank<2?rank+1:'other'}">${rank+1}</span>`;
+    const gaStr = (s.gf + s.ga) > 0 ? s.gaAvg.toFixed(3) : '—';
+    tr.innerHTML = `
+      <td>${badge}</td>
+      <td class="team-name">${TEAMS[s.idx]}${s.idx===CAPS_IDX?' ⭐':''}</td>
+      <td>${s.gp}</td><td>${s.w}</td><td>${s.l}</td><td>${s.t}</td>
+      <td>${s.gf}</td><td>${s.ga}</td>
+      <td class="pts-cell">${s.pts}</td>
+      <td>${gaStr}</td>
+      <td class="max-pts">${s.maxPts}</td>
+      <td>${statusMap[s.status]||''}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderChampionship() {
+  const aStats = calcDivStandings(divisions.A, scoresA, DIV_A_SCHEDULE);
+  const bStats = calcDivStandings(divisions.B, scoresB, DIV_B_SCHEDULE);
+  const el = document.getElementById('playoff-matchup');
+
+  const makeGame = (label, time, stats, divTeams) => {
+    const clinched = stats.filter(s => s.status === 'clinched');
+    const slots = [0, 1].map(i => {
+      const s = clinched[i];
+      if (s) {
+        const isCaps = s.idx === CAPS_IDX;
+        return `<div class="champ-team top-seed" style="${isCaps?'border-left:3px solid var(--caps-border);background:var(--caps-gold);':''}">
+          <span style="${isCaps?'color:var(--red-dark);font-weight:700;':''}">${TEAMS[s.idx]}${isCaps?' ⭐':''} ✓</span>
+          <span style="color:var(--sub);font-size:11px">${s.pts} pts</span>
+        </div>`;
+      } else {
+        return `<div class="champ-team" style="color:var(--sub);font-style:italic;justify-content:center;">
+          <span style="font-size:12px">TBD — not yet clinched</span>
+        </div>`;
+      }
+    });
+    return `
+      <div class="champ-game">
+        <div class="champ-game-title">🏆 ${label} · ${time}</div>
+        ${slots.join('')}
+      </div>`;
+  };
+
+  const aClinched = aStats.filter(s => s.status === 'clinched').length;
+  const bClinched = bStats.filter(s => s.status === 'clinched').length;
+
+  if (aClinched === 0 && bClinched === 0) {
+    el.innerHTML = `<div style="color:var(--sub);font-size:13px;padding:10px 16px;font-style:italic">Championship spots not yet clinched — check back as round-robin results come in.</div>`;
+    return;
+  }
+
+  el.innerHTML = makeGame('A Division Championship', 'Sun Mar 29, 3:00pm', aStats, divisions.A)
+               + makeGame('B Division Championship', 'Sun Mar 29, 1:00pm', bStats, divisions.B);
+}
+
+// ════════════════════════════════════════
+// SCENARIOS
+// ════════════════════════════════════════
+function renderScenarios() {
+  const divSet = divisionsSet && divisions.A.length === 4 && divisions.B.length === 4;
+  const capsDiv = divSet ? Object.entries(divisions).find(([d,t]) => t.includes(CAPS_IDX)) : null;
+  const otherDiv = capsDiv ? (capsDiv[0] === 'A' ? 'B' : 'A') : null;
+
+  const secCaps  = document.getElementById('scenarios-section-caps');
+  const secOther = document.getElementById('scenarios-section-other');
+  const secD1    = document.getElementById('scenarios-section-day1');
+  const noteEl   = document.getElementById('scenarios-main-note');
+
+  if (divSet && capsDiv) {
+    // Divisions set: Caps div → Other div → Day 1 at bottom
+    secCaps.style.display  = '';
+    secOther.style.display = '';
+    secD1.style.marginTop  = '0';
+
+    // Update note
+    noteEl.innerHTML = `<strong>Day 2 &amp; 3 underway.</strong> Caps division scenarios are shown first. Day 1 seeding scenarios are at the bottom for reference.`;
+
+    // Caps division
+    const [capsD] = capsDiv;
+    document.getElementById('scenarios-caps-label').textContent = `${capsD} DIVISION (CAPS) — CHAMPIONSHIP SCENARIOS`;
+    const capsTeams  = divisions[capsD];
+    const capsSched  = capsD === 'A' ? DIV_A_SCHEDULE : DIV_B_SCHEDULE;
+    const capsScores = capsD === 'A' ? scoresA : scoresB;
+    const capsStats  = calcDivStandings(capsTeams, capsScores, capsSched);
+    const capsGrid   = document.getElementById('scenarios-grid-caps');
+    capsGrid.innerHTML = '';
+    renderDivScenariosFor(capsTeams, capsStats, capsSched, capsScores, capsGrid);
+
+    // Other division
+    document.getElementById('scenarios-other-label').textContent = `${otherDiv} DIVISION — CHAMPIONSHIP SCENARIOS`;
+    const otherTeams  = divisions[otherDiv];
+    const otherSched  = otherDiv === 'A' ? DIV_A_SCHEDULE : DIV_B_SCHEDULE;
+    const otherScores = otherDiv === 'A' ? scoresA : scoresB;
+    const otherStats  = calcDivStandings(otherTeams, otherScores, otherSched);
+    const otherGrid   = document.getElementById('scenarios-grid-other');
+    otherGrid.innerHTML = '';
+    renderDivScenariosFor(otherTeams, otherStats, otherSched, otherScores, otherGrid);
+
+    // Day 1 label tweak
+    document.getElementById('scenarios-d1-label').textContent = 'DAY 1 — DIVISION SEEDING (REFERENCE)';
+  } else {
+    // Divisions not set: only show Day 1
+    secCaps.style.display  = 'none';
+    secOther.style.display = 'none';
+    document.getElementById('scenarios-d1-label').textContent = 'DAY 1 — DIVISION SEEDING SCENARIOS';
+    noteEl.innerHTML = `<strong>Day 1 scenarios:</strong> Each team plays 2 games (max 4 pts). Top 4 advance to A Division, bottom 4 to B Division. Teams tied on the boundary (4th/5th) will be resolved by tiebreakers. <strong>Day 2/3 scenarios</strong> appear once divisions are set.`;
+  }
+
+  renderDay1Scenarios();
+}
+
+function renderDay1Scenarios() {
+  const stats = calcDay1();
+  const grid  = document.getElementById('scenarios-grid-d1');
+  grid.innerHTML = '';
+  const divSet = divisionsSet && divisions.A.length === 4;
+
+  TEAMS.forEach((team, ti) => {
+    const s = stats.find(x => x.idx === ti);
+    const rank = stats.findIndex(x => x.idx === ti);
+    const gamesLeft = 2 - s.gp;
+
+    const card = document.createElement('div');
+    card.className = 'team-card';
+    let items = [];
+
+    // If divisions already confirmed, show final assignment; else show projection
+    if (divSet) {
+      const assignedDiv  = divisions.A.includes(ti) ? 'A' : 'B';
+      const assignedSeed = (divisions[assignedDiv].indexOf(ti) + 1);
+      items.push({cls:'scenario-info', icon:'✅', text:`Assigned: <strong>${assignedDiv} Division, Seed ${assignedSeed}</strong> (Day 1 finish: ${rank+1}${['st','nd','rd','th'][Math.min(rank,3)]} — ${s.pts} pts, ${s.w}W-${s.l}L-${s.t}T)`});
+    } else {
+      const projDiv  = rank < 4 ? 'A' : 'B';
+      const projSeed = rank < 4 ? rank+1 : rank-3;
+      items.push({cls:'scenario-info', icon:'📍', text:`Currently projected: <strong>${projDiv} Division, Seed ${projSeed}</strong> (${s.pts} pts, ${s.w}W-${s.l}L-${s.t}T)`});
+
+      if (gamesLeft === 0) {
+        items.push({cls:'scenario-info', icon:'🏁', text:`Day 1 complete. Final: <strong>${rank+1}${['st','nd','rd','th'][Math.min(rank,3)]} overall → ${projDiv} Division, Seed ${projSeed}</strong>.`});
+      } else {
+        const maxPts = s.pts + gamesLeft * 2;
+        if (rank < 4 && s.pts > (stats[4] ? stats[4].maxPts : 0)) {
+          items.push({cls:'scenario-clinch', icon:'🟢', text:`<strong>A Division locked.</strong> Cannot drop to B Division regardless of remaining results.`});
+        } else if (rank >= 4 && maxPts < (stats[3] ? stats[3].pts : 0)) {
+          items.push({cls:'scenario-elim', icon:'🔴', text:`<strong>B Division locked.</strong> Cannot climb to A Division regardless of remaining results.`});
+        } else if (Math.abs(rank - 3) <= 1) {
+          items.push({cls:'scenario-help', icon:'🟡', text:`<strong>On the A/B boundary.</strong> Results this round could shift seeding — tiebreakers (H2H → wins → GA%) may apply if level on points.`});
+        } else if (rank < 3) {
+          items.push({cls:'scenario-likely', icon:'🔵', text:`Strong position for A Division. Would need to lose remaining games AND others win to be at risk.`});
+        } else {
+          items.push({cls:'scenario-likely', icon:'🔵', text:`In range to move up. <strong>${gamesLeft} game${gamesLeft>1?'s':''} left</strong>. Max possible: ${maxPts} pts.`});
+        }
+        items.push({cls:'scenario-info', icon:'📅', text:`<strong>${gamesLeft} game${gamesLeft>1?'s':''} remaining.</strong> Max possible: <strong>${maxPts} pts</strong>.`});
+        const next = DAY1_SCHEDULE.map((g,gi)=>({g,s:scores1[gi]}))
+          .filter(({g,s}) => (g.v===ti||g.h===ti) && s.v===null).slice(0,1);
+        if (next.length) {
+          const {g} = next[0];
+          items.push({cls:'scenario-info', icon:'⏭️', text:`Next: <strong>${TEAMS[g.v===ti?g.h:g.v]}</strong> at ${g.time}`});
+        }
+        items.push({cls:'scenario-info', icon:'⚖️', text:`GA% (GF÷(GF+GA)) is the <strong>3rd tiebreaker</strong> — goal margins count even in lopsided wins.`});
+      }
+    }
+
+    card.innerHTML = `
+      <div class="team-card-header" style="background:${TEAM_COLORS[ti]}">${team}${ti===CAPS_IDX?' ⭐':''}</div>
+      <div class="team-card-body">${items.map(i=>`
+        <div class="scenario-item ${i.cls}">
+          <span class="scenario-bullet">${i.icon}</span>
+          <span>${i.text}</span>
+        </div>`).join('')}
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function renderDivScenariosFor(teams, stats, schedule, scores, grid) {
+  teams.forEach((ti, seed) => {
+    const s = stats.find(x => x.idx === ti);
+    if (!s) return;
+    const rank = stats.findIndex(x => x.idx === ti);
+    const gamesLeft = 3 - s.gp;
+    const card = document.createElement('div');
+    card.className = 'team-card';
+    let items = [];
+
+    if (s.status === 'clinched') {
+      items.push({cls:'scenario-clinch', icon:'✅', text:`<strong>${TEAMS[ti]} have CLINCHED</strong> a spot in the Championship Game!`});
+      items.push({cls:'scenario-info', icon:'📍', text:`Final record so far: <strong>${s.pts} pts</strong> (${s.w}W-${s.l}L-${s.t}T) · Rank ${rank+1} of 4`});
+    } else if (s.status === 'eliminated') {
+      items.push({cls:'scenario-elim', icon:'❌', text:`<strong>${TEAMS[ti]} have been ELIMINATED.</strong> Cannot finish top 2 in the division.`});
+      items.push({cls:'scenario-info', icon:'📍', text:`Record: <strong>${s.pts} pts</strong> (${s.w}W-${s.l}L-${s.t}T) · Max possible: ${s.maxPts} pts`});
+    } else {
+      items.push({cls:'scenario-info', icon:'📍', text:`Current: <strong>${s.pts} pts</strong> (${s.w}W-${s.l}L-${s.t}T) · Rank ${rank+1} of 4`});
+
+      if (s.pts >= 6) {
+        items.push({cls:'scenario-clinch', icon:'🟢', text:`At <strong>${s.pts} pts</strong> — virtually clinched (max is 6 pts in a 3-game round-robin).`});
+      } else {
+        const ptsNeeded = Math.max(0, 6 - s.pts);
+        if (s.maxPts >= 6) {
+          items.push({cls:'scenario-clinch', icon:'🟢', text:`Win ${Math.ceil(ptsNeeded/2)} more game${Math.ceil(ptsNeeded/2)>1?'s':''} to reach 6 pts and <strong>clinch a Championship spot</strong>.`});
+        }
+        const third = stats[2];
+        if (rank < 2 && s.pts > (third ? third.maxPts : 0)) {
+          items.push({cls:'scenario-clinch', icon:'🟢', text:`3rd place (${third ? TEAMS[third.idx] : '—'}) cannot catch you — <strong>Championship spot secured</strong>.`});
+        } else if (rank < 2) {
+          items.push({cls:'scenario-likely', icon:'🔵', text:`Holding a top-2 spot. Stay strong — one more win likely wraps it up. Watch tiebreakers if tied on points.`});
+        } else {
+          const gap = stats[1] ? stats[1].pts - s.pts : 0;
+          items.push({cls:'scenario-help', icon:'🟡', text:`Need to overtake top 2 (currently ${gap} pts back of 2nd). Win remaining + need results to go your way.`});
+        }
+      }
+
+      items.push({cls:'scenario-info', icon:'📅', text:`<strong>${gamesLeft} game${gamesLeft>1?'s':''} remaining.</strong> Max possible: <strong>${s.maxPts} pts</strong>.`});
+
+      // Next unplayed game for this seed
+      const next = schedule.map((g,gi)=>({g,gi,s:scores[gi]}))
+        .filter(({g,s}) => (g.v===seed || g.h===seed) && (s.v===null || s.h===null)).slice(0,1);
+      if (next.length) {
+        const {g} = next[0];
+        const oppSeed = g.v===seed ? g.h : g.v;
+        if (oppSeed < teams.length) {
+          items.push({cls:'scenario-info', icon:'⏭️', text:`Next: <strong>${TEAMS[teams[oppSeed]]}</strong>${teams[oppSeed]===CAPS_IDX?' ⭐':''} · ${g.day} ${g.time}`});
+        }
+      }
+      // Key rival: nearest team in standings
+      const rival = stats.find((x,ri) => ri !== rank && Math.abs(ri-rank) === 1);
+      if (rival) {
+        const ptsDiff = Math.abs(s.pts - rival.pts);
+        items.push({cls:'scenario-help', icon:'🔑', text:`Key rival: <strong>${TEAMS[rival.idx]}</strong>${rival.idx===CAPS_IDX?' ⭐':''} (${rival.pts} pts${ptsDiff===0?' — tied':`, ${ptsDiff} pts ${rival.pts>s.pts?'ahead':'behind'}`}) — H2H result is Tiebreaker #1 if you finish level.`});
+      }
+      items.push({cls:'scenario-info', icon:'⚖️', text:`GA% is the <strong>2nd tiebreaker</strong> in 3-team ties (H2H GA%). Margins matter — protect your percentage.`});
+    }
+
+    card.innerHTML = `
+      <div class="team-card-header" style="background:${TEAM_COLORS[ti]}">${TEAMS[ti]}${ti===CAPS_IDX?' ⭐':''}</div>
+      <div class="team-card-body">${items.map(i=>`
+        <div class="scenario-item ${i.cls}">
+          <span class="scenario-bullet">${i.icon}</span>
+          <span>${i.text}</span>
+        </div>`).join('')}
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+// ════════════════════════════════════════
+// SETUP — SHEET TEMPLATE DISPLAY
+// ════════════════════════════════════════
+function renderSheetTemplate() {
+  const tbody = document.getElementById('sheet-template-d1');
+  tbody.innerHTML = '';
+  DAY1_SCHEDULE.forEach((g, i) => {
+    const label = `${TEAMS[g.v]} vs ${TEAMS[g.h]}`;
+    const tr = document.createElement('tr');
+    const bg = i % 2 === 0 ? '#fff' : '#f5f8ff';
+    tr.innerHTML = `
+      <td style="padding:6px 10px;background:${bg};border-bottom:1px solid #ddeaff">${label}</td>
+      <td style="padding:6px;text-align:center;background:#FFF9C4;border-bottom:1px solid #ddeaff;font-size:11px;color:#7A5200">← enter score</td>
+      <td style="padding:6px;text-align:center;background:#FFF9C4;border-bottom:1px solid #ddeaff;font-size:11px;color:#7A5200">← enter score</td>
+      <td style="padding:6px 10px;background:${bg};border-bottom:1px solid #ddeaff;font-size:11px;color:#888">${g.time}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  const tbody2 = document.getElementById('sheet-template-da');
+  tbody2.innerHTML = '';
+  DIV_A_SCHEDULE.forEach((g, i) => {
+    const vLabel = `A${g.v+1} (TBD)`, hLabel = `A${g.h+1} (TBD)`;
+    const tr = document.createElement('tr');
+    const bg = i % 2 === 0 ? '#fff' : '#f5f8ff';
+    tr.innerHTML = `
+      <td style="padding:6px 10px;background:${bg};border-bottom:1px solid #ddeaff">${vLabel} vs ${hLabel}</td>
+      <td style="padding:6px;text-align:center;background:#FFF9C4;border-bottom:1px solid #ddeaff;font-size:11px;color:#7A5200">← enter score</td>
+      <td style="padding:6px;text-align:center;background:#FFF9C4;border-bottom:1px solid #ddeaff;font-size:11px;color:#7A5200">← enter score</td>
+      <td style="padding:6px 10px;background:${bg};border-bottom:1px solid #ddeaff;font-size:11px;color:#888">${g.day} ${g.time}</td>
+    `;
+    tbody2.appendChild(tr);
+  });
+}
+
+// ════════════════════════════════════════
+// SETUP — DIVISION INPUTS
+// ════════════════════════════════════════
+function renderDivInputs() {
+  ['A','B'].forEach(div => {
+    const el = document.getElementById(`div-${div.toLowerCase()}-inputs`);
+    el.innerHTML = '';
+    [1,2,3,4].forEach(seed => {
+      const ti = (divisions[div] && divisions[div][seed-1]) !== undefined ? divisions[div][seed-1] : null;
+      const row = document.createElement('div');
+      row.className = 'setup-row';
+      row.style.marginBottom = '8px';
+      row.innerHTML = `
+        <span class="setup-label" style="min-width:60px;font-family:'Bebas Neue';letter-spacing:1px;color:${div==='A'?'var(--green)':'var(--blue)'}">Seed ${seed}</span>
+        <select id="div-${div}-seed-${seed}" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);border-radius:5px;padding:7px 10px;font-family:'Barlow';font-size:13px;color:#fff;flex:1;max-width:280px">
+          <option value="">— Select team —</option>
+          ${TEAMS.map((t,i) => `<option value="${i}" ${ti===i?'selected':''}>${t}</option>`).join('')}
+        </select>
+      `;
+      el.appendChild(row);
+    });
+  });
+
+  // re-init sheet id input
+  document.getElementById('sheet-id-input').value = sheetId;
+}
+
+function resetDivisions() {
+  if (!confirm('Reset all division assignments? This will clear Day 2 & 3 standings and scenarios. Division scores in Google Sheets are not affected.')) return;
+  divisions = {A: [], B: []};
+  divisionsSet = false;
+  localStorage.removeItem('u11_divisions');
+  scoresA = DIV_A_SCHEDULE.map(() => ({v:null, h:null}));
+  scoresB = DIV_B_SCHEDULE.map(() => ({v:null, h:null}));
+  renderDivInputs();
+  renderAll();
+  document.getElementById('div-save-status').textContent = '🗑 Divisions reset. Re-assign teams and save.';
+  document.getElementById('div-save-status').style.color = '#FFB8B8';
+}
+
+function autoAssignDivisions() {
+  const stats = calcDay1();
+  divisions.A = stats.slice(0,4).map(s => s.idx);
+  divisions.B = stats.slice(4,8).map(s => s.idx);
+  divisionsSet = true;
+  renderDivInputs();
+  renderAll();
+  document.getElementById('div-save-status').textContent = '✅ Auto-filled from current Day 1 standings. Click Save to confirm.';
+}
+
+function saveDivisions() {
+  ['A','B'].forEach(div => {
+    divisions[div] = [1,2,3,4].map(seed => {
+      const val = document.getElementById(`div-${div}-seed-${seed}`)?.value;
+      return val !== '' && val !== undefined ? parseInt(val) : null;
+    });
+  });
+
+  const allSet = divisions.A.every(x => x !== null) && divisions.B.every(x => x !== null);
+  const allUnique = new Set([...divisions.A, ...divisions.B]).size === 8;
+
+  if (!allSet)    { document.getElementById('div-save-status').textContent = '⚠ Please assign all 8 seeds (4 per division).'; return; }
+  if (!allUnique) { document.getElementById('div-save-status').textContent = '⚠ Each team should appear exactly once. Check for duplicates.'; return; }
+
+  divisionsSet = true;
+  localStorage.setItem('u11_divisions', JSON.stringify(divisions));
+  document.getElementById('div-save-status').textContent = '✅ Divisions saved! Day 2 & 3 tab is now active.';
+  renderAll();
+}
+
+// ════════════════════════════════════════
+// TABS
+// ════════════════════════════════════════
+function showPanel(id, src) {
+  // Guard: setup panel requires admin session
+  if (id === 'setup' && !pinUnlocked) {
+    openPinOverlay();
+    return;
+  }
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  // Only update tab highlights when called from a tab button click
+  if (src && event && event.currentTarget) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+  // Reset inactivity timer when admin navigates
+  if (pinUnlocked) resetAdminTimeout();
+}
+
+// ════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════
+// Restore saved divisions
+try {
+  const saved = localStorage.getItem('u11_divisions');
+  if (saved) {
+    divisions = JSON.parse(saved);
+    divisionsSet = divisions.A.length === 4 && divisions.B.length === 4;
+  }
+} catch(e) {}
+
+// Restore sheet id
+if (sheetId) {
+  document.getElementById('sheet-id-input').value = sheetId;
+  startAutoRefresh();
+  fetchSheetData();
+} else {
+  renderAll();
+}
+</script>
+</body>
+</html>
